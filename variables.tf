@@ -8,6 +8,11 @@ variable "node_hostnames" {
   default = []
 }
 
+variable "a_records" {
+  type = "map"
+  default = {}
+}
+
 variable "dns_server" {}
 variable "key_name" {}
 variable "key_algorithm" {}
