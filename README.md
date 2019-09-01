@@ -4,7 +4,7 @@ Terraform Module that creates a bunch of DNS records using dynamic DNS updates. 
 
 Here is example usage from our [openshift installation](https://github.com/ibm-cloud-architecture/terraform-openshift4-vmware-example):
 
-```
+```terraform
 module "dns" {
     source                  = "github.com/ibm-cloud-architecture/terraform-dns-rfc2136"
 
@@ -31,9 +31,9 @@ module "dns" {
     srv_record_count = 1
     srv_records = [ "<srv_record>" ]
     srv_record_targets = {
-        "<ip1>:<port>" = "<srv_record>,
-        "<ip2>:<port>" = "<srv_record>
-        "<ip3>:<port>" = "<srv_record>
+        "<ip1>:<port>" = "<srv_record>",
+        "<ip2>:<port>" = "<srv_record>"
+        "<ip3>:<port>" = "<srv_record>"
     }
 
     cname_record_count = 1
