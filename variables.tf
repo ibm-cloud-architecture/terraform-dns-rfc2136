@@ -1,3 +1,7 @@
+variable "node_count" {
+  default = 0
+}
+
 variable "node_ips" {
   type = "list"
   default = []
@@ -8,9 +12,26 @@ variable "node_hostnames" {
   default = []
 }
 
+variable "a_record_count" {
+  default = 0
+}
+
 variable "a_records" {
   type = "map"
   default = {}
+}
+
+variable "cname_record_count" {
+  default = 0
+}
+
+variable "cname_records" {
+  type = "map"
+  default = {}
+}
+
+variable "srv_record_count" {
+  default = 0
 }
 
 variable "srv_records" {
@@ -31,6 +52,9 @@ variable "dns_server" {}
 variable "key_name" {}
 variable "key_algorithm" {}
 variable "key_secret" {}
-variable "zone_name" {}
+variable "zone_name" {
+  description = "name of zone, must in in a period"
+}
+
 variable "record_ttl" {}
 

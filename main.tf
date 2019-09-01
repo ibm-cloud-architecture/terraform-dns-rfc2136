@@ -7,19 +7,20 @@ provider "dns" {
   }
 }
 
-
 resource "dns_a_record_set" "node_a_record" {
-  count = "${length(var.node_ips)}"
+  count = "${var.node_count}"
 
   zone = "${var.zone_name}"
-  name = "${element(var.node_hostnames, count.index)}"
+  
+  # in case the caller passes fqdn, drop the zone name as we don't need it
+  name = "${replace(element(var.node_hostnames, count.index), replace(".${var.zone_name}", "/\\.$/", ""), "")}"
 
   addresses = ["${element(var.node_ips, count.index)}"]
   ttl = "${var.record_ttl}"
 }
 
 resource "dns_ptr_record" "node_ptr_record" {
-  count = "${var.create_node_ptr_records ? length(var.node_ips) : 0}"
+  count = "${var.create_node_ptr_records ? var.node_count : 0}"
 
   zone = "${format("%s.in-addr.arpa.", join(".", reverse(slice(split(".", element(var.node_ips, count.index)), 0, 3))))}"
   name = "${element(split(".", element(var.node_ips, count.index)), 3)}"
@@ -29,20 +30,22 @@ resource "dns_ptr_record" "node_ptr_record" {
 }
 
 resource "dns_a_record_set" "other_a_record" {
-  count = "${length(var.a_records)}"
+  count = "${var.a_record_count}"
 
   zone = "${var.zone_name}"
-  name = "${element(keys(var.a_records), count.index)}"
+  name = "${replace(element(keys(var.a_records), count.index), replace(".${var.zone_name}", "/\\.$/", ""), "")}"
 
   addresses = ["${element(values(var.a_records), count.index)}"]
   ttl = "${var.record_ttl}"
 }
 
-resource "dns_srv_record_set" "srv_records" {
-  count = "${length(var.srv_records)}"
+resource "dns_srv_record_set" "srv_record" {
+  count = "${var.srv_record_count}"
 
   zone = "${var.zone_name}"
-  name = "${element(var.srv_records, count.index)}"
+
+  # in case the caller passes fqdn, drop the zone name as we don't need it
+  name = "${replace(element(var.srv_records, count.index), replace(".${var.zone_name}", "/\\.$/", ""), "")}"
 
   dynamic "srv" {
     for_each = matchkeys(
@@ -57,6 +60,17 @@ resource "dns_srv_record_set" "srv_records" {
       port = "${element(split(":", srv.value), 1)}"
     }
   }
-    
+}
 
+resource "dns_cname_record" "cname_record" {
+  count = "${var.cname_record_count}"
+
+  zone = "${var.zone_name}"
+
+  # in case the caller passes fqdn, drop the zone name as we don't need it
+  name = "${replace(element(keys(var.cname_records), count.index), replace(".${var.zone_name}", "/\\.$/", ""), "")}"
+
+  # in case the cname passed in is not fully qualified (ends with dot), add a dot
+  cname = "${replace(element(values(var.cname_records), count.index), "/([^.])$/", "$1.")}"
+  ttl = "${var.record_ttl}"
 }
