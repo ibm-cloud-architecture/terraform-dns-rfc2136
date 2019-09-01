@@ -31,7 +31,7 @@ module "dns" {
     srv_record_count = 1
     srv_records = [ "<srv_record>" ]
     srv_record_targets = {
-        "<ip1>:<port>" = "<srv_record>",
+        "<ip1>:<port>" = "<srv_record>"
         "<ip2>:<port>" = "<srv_record>"
         "<ip3>:<port>" = "<srv_record>"
     }
