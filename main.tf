@@ -7,8 +7,18 @@ provider "dns" {
   }
 }
 
+resource "null_resource" "dependency" {
+  triggers = {
+    all_dependencies = "${join(",", var.dependson)}"
+  }
+}
+
 resource "dns_a_record_set" "node_a_record" {
   count = "${var.node_count}"
+
+  depends_on = [
+    "null_resource.dependency"
+  ]
 
   zone = "${var.zone_name}"
   
@@ -22,6 +32,10 @@ resource "dns_a_record_set" "node_a_record" {
 resource "dns_ptr_record" "node_ptr_record" {
   count = "${var.create_node_ptr_records ? var.node_count : 0}"
 
+  depends_on = [
+    "null_resource.dependency"
+  ]
+
   zone = "${format("%s.in-addr.arpa.", join(".", reverse(slice(split(".", element(var.node_ips, count.index)), 0, 3))))}"
   name = "${element(split(".", element(var.node_ips, count.index)), 3)}"
   ptr = "${element(var.node_hostnames, count.index)}.${var.zone_name}"
@@ -32,6 +46,10 @@ resource "dns_ptr_record" "node_ptr_record" {
 resource "dns_a_record_set" "other_a_record" {
   count = "${var.a_record_count}"
 
+  depends_on = [
+    "null_resource.dependency"
+  ]
+
   zone = "${var.zone_name}"
   name = "${replace(element(keys(var.a_records), count.index), replace(".${var.zone_name}", "/\\.$/", ""), "")}"
 
@@ -41,6 +59,10 @@ resource "dns_a_record_set" "other_a_record" {
 
 resource "dns_srv_record_set" "srv_record" {
   count = "${var.srv_record_count}"
+
+  depends_on = [
+    "null_resource.dependency"
+  ]
 
   zone = "${var.zone_name}"
 
@@ -64,6 +86,10 @@ resource "dns_srv_record_set" "srv_record" {
 
 resource "dns_cname_record" "cname_record" {
   count = "${var.cname_record_count}"
+
+  depends_on = [
+    "null_resource.dependency"
+  ]
 
   zone = "${var.zone_name}"
 
