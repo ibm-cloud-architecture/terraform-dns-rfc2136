@@ -58,3 +58,7 @@ variable "zone_name" {
 
 variable "record_ttl" {}
 
+variable dependson {
+  type = "list"
+  default = []
+}
